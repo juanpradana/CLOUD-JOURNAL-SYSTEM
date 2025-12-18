@@ -1,0 +1,210 @@
+---
+import Layout from "../../layouts/Layout.astro";
+import GlassCard from "../../components/GlassCard.astro";
+import { db } from "../../db";
+import { users } from "../../db/schema";
+import { asc } from "drizzle-orm";
+
+if (!Astro.locals.user) {
+	return Astro.redirect("/login");
+}
+
+if (Astro.locals.user.role !== "admin") {
+	return Astro.redirect("/admin");
+}
+
+const currentUser = Astro.locals.user;
+
+const usersList = await db
+	.select({ id: users.id, username: users.username, role: users.role })
+	.from(users)
+	.orderBy(asc(users.username));
+
+const adminCount = usersList.filter((u) => u.role === "admin").length;
+---
+
+<Layout title="Kelola Akun - Admin">
+	<div class="container mx-auto px-4 py-6 sm:py-8 space-y-6">
+		<header class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+			<div class="min-w-0">
+				<div class="flex items-center gap-3">
+					<a href="/admin" class="text-gray-400 hover:text-white transition-colors">
+						<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+					</a>
+					<h1 class="text-2xl sm:text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-500 truncate">
+						Kelola Akun
+					</h1>
+				</div>
+				<p class="text-gray-400 mt-1">
+					Login sebagai <span class="text-blue-300 font-mono">{currentUser.username}</span>
+				</p>
+			</div>
+		</header>
+
+		<div id="page-message" class="hidden rounded-lg border border-white/10 bg-white/5 px-4 py-3 text-sm text-gray-200"></div>
+
+		<div class="grid gap-4 lg:grid-cols-2">
+			<GlassCard>
+				<h2 class="text-lg font-semibold text-white mb-4">Buat Akun Baru</h2>
+				<form id="create-user-form" class="space-y-4">
+					<div class="space-y-2">
+						<label class="text-sm font-medium text-gray-300" for="new-username">Username</label>
+						<input id="new-username" name="username" type="text" required class="w-full px-4 py-2 bg-white/5 border border-white/10 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none text-white placeholder-gray-500 transition-all" placeholder="username" />
+					</div>
+					<div class="space-y-2">
+						<label class="text-sm font-medium text-gray-300" for="new-password">Password</label>
+						<input id="new-password" name="password" type="password" required class="w-full px-4 py-2 bg-white/5 border border-white/10 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none text-white placeholder-gray-500 transition-all" placeholder="••••••••" />
+					</div>
+					<div class="space-y-2">
+						<label class="text-sm font-medium text-gray-300" for="new-role">Role</label>
+						<select id="new-role" name="role" class="w-full px-4 py-2 bg-white/5 border border-white/10 rounded-lg outline-none text-white">
+							<option value="author">author</option>
+							<option value="admin">admin</option>
+						</select>
+					</div>
+					<button type="submit" class="w-full py-2.5 px-4 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 text-white font-semibold rounded-lg shadow-lg shadow-blue-500/20 transition-all hover:scale-[1.01] active:scale-[0.99]">
+						Create User
+					</button>
+				</form>
+			</GlassCard>
+
+			<GlassCard>
+				<h2 class="text-lg font-semibold text-white mb-4">Daftar Akun</h2>
+				<div class="overflow-x-auto">
+					<table class="min-w-full text-sm">
+						<thead>
+							<tr class="text-left text-gray-400 border-b border-white/10">
+								<th class="py-2 pr-4">Username</th>
+								<th class="py-2 pr-4">Role</th>
+								<th class="py-2">Aksi</th>
+							</tr>
+						</thead>
+						<tbody>
+							{usersList.map((u) => {
+								const isSelf = u.id === currentUser.id;
+								const isLastAdmin = u.role === "admin" && adminCount === 1;
+								return (
+									<tr class="border-b border-white/5 align-middle">
+										<td class="py-3 pr-4">
+											<div class="text-white font-medium">{u.username}</div>
+											<div class="text-xs text-gray-500 font-mono">{u.id}</div>
+										</td>
+										<td class="py-3 pr-4">
+											<select id={`role-${u.id}`} class="w-full min-w-[140px] px-3 py-2 bg-white/5 border border-white/10 rounded-lg outline-none text-white" disabled={isSelf}>
+												<option value="author" selected={u.role === "author"}>author</option>
+												<option value="admin" selected={u.role === "admin"}>admin</option>
+											</select>
+										</td>
+										<td class="py-3">
+											<div class="flex flex-wrap gap-2">
+												<button type="button" class="px-3 py-2 bg-white/5 hover:bg-white/10 border border-white/10 rounded-lg text-white transition-colors disabled:opacity-50" data-action="update-role" data-user-id={u.id} disabled={isSelf}>
+													Save
+												</button>
+												<button type="button" class="px-3 py-2 bg-red-500/10 hover:bg-red-500/20 border border-red-500/20 rounded-lg text-red-300 transition-colors disabled:opacity-50" data-action="delete" data-user-id={u.id} disabled={isSelf || isLastAdmin}>
+													Delete
+												</button>
+											</div>
+											{isSelf && <div class="text-xs text-gray-500 mt-1">(akun kamu)</div>}
+											{!isSelf && isLastAdmin && <div class="text-xs text-gray-500 mt-1">(admin terakhir)</div>}
+										</td>
+									</tr>
+								);
+							})}
+						</tbody>
+					</table>
+				</div>
+			</GlassCard>
+		</div>
+	</div>
+</Layout>
+
+<script>
+	const messageBox = document.getElementById("page-message") as HTMLDivElement;
+	const createForm = document.getElementById("create-user-form") as HTMLFormElement;
+
+	function showMessage(text: string, variant: "success" | "error" = "success") {
+		messageBox.classList.remove("hidden");
+		messageBox.textContent = text;
+		messageBox.classList.toggle("border-red-500/30", variant === "error");
+		messageBox.classList.toggle("text-red-200", variant === "error");
+		messageBox.classList.toggle("border-white/10", variant !== "error");
+		messageBox.classList.toggle("text-gray-200", variant !== "error");
+	}
+
+	async function requestJson(url: string, init: RequestInit) {
+		const res = await fetch(url, {
+			...init,
+			headers: {
+				"Content-Type": "application/json",
+				...(init.headers ?? {})
+			},
+			credentials: "same-origin"
+		});
+		let data: any = null;
+		try {
+			data = await res.json();
+		} catch {
+			data = null;
+		}
+		if (!res.ok) {
+			throw new Error(data?.error ?? "Request failed");
+		}
+		return data;
+	}
+
+	createForm.addEventListener("submit", async (e) => {
+		e.preventDefault();
+		const formData = new FormData(createForm);
+		const username = formData.get("username");
+		const password = formData.get("password");
+		const role = formData.get("role");
+
+		try {
+			await requestJson("/api/admin/users", {
+				method: "POST",
+				body: JSON.stringify({ username, password, role })
+			});
+			showMessage("User created. Reloading...");
+			window.location.reload();
+		} catch (err) {
+			showMessage((err as Error).message, "error");
+		}
+	});
+
+	document.addEventListener("click", async (e) => {
+		const el = e.target as HTMLElement;
+		const btn = el.closest("button[data-action]") as HTMLButtonElement | null;
+		if (!btn) return;
+
+		const action = btn.dataset.action;
+		const userId = btn.dataset.userId;
+		if (!action || !userId) return;
+
+		try {
+			if (action === "delete") {
+				const ok = confirm("Hapus user ini? Session user juga akan dihapus.");
+				if (!ok) return;
+
+				await requestJson("/api/admin/users", {
+					method: "DELETE",
+					body: JSON.stringify({ id: userId })
+				});
+				showMessage("User deleted. Reloading...");
+				window.location.reload();
+			}
+
+			if (action === "update-role") {
+				const roleSelect = document.getElementById(`role-${userId}`) as HTMLSelectElement | null;
+				const role = roleSelect?.value;
+				await requestJson("/api/admin/users", {
+					method: "PATCH",
+					body: JSON.stringify({ id: userId, role })
+				});
+				showMessage("Role updated. Reloading...");
+				window.location.reload();
+			}
+		} catch (err) {
+			showMessage((err as Error).message, "error");
+		}
+	});
+</script>
