@@ -20,7 +20,7 @@ const { title, description = "Glass Cloud Journal System" } = Astro.props;
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
         <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 	</head>
-	<body class="bg-deep-space text-white min-h-screen font-sans selection:bg-blue-500/30 selection:text-blue-200">
+	<body class="bg-deep-space text-white min-h-screen font-sans antialiased overflow-x-hidden selection:bg-blue-500/30 selection:text-blue-200">
         <div class="fixed inset-0 z-[-1] bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-blue-900/20 via-[#020617] to-[#020617] pointer-events-none"></div>
 		<slot />
 	</body>

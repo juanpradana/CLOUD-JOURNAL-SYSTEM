@@ -11,10 +11,10 @@ const slug = searchParams.get("slug");
 ---
 
 <Layout title="Editor - Glass Cloud Journal">
-    <div class="flex flex-col h-screen overflow-hidden">
+    <div class="flex flex-col h-screen h-dvh overflow-hidden">
         <!-- Toolbar -->
-        <header class="flex-none h-16 border-b border-white/10 bg-black/20 backdrop-blur-md flex items-center justify-between px-6 z-10">
-            <div class="flex items-center gap-4">
+        <header class="flex-none min-h-[4rem] border-b border-white/10 bg-black/20 backdrop-blur-md px-4 sm:px-6 py-3 sm:py-0 z-10 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-0">
+            <div class="flex items-center gap-3 w-full sm:w-auto min-w-0">
                 <a href="/admin" class="text-gray-400 hover:text-white transition-colors">
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
                 </a>
@@ -22,10 +22,10 @@ const slug = searchParams.get("slug");
                     type="text" 
                     id="post-title" 
                     placeholder="Entry Title..." 
-                    class="bg-transparent text-xl font-bold text-white placeholder-gray-600 outline-none w-96"
+                    class="bg-transparent text-base sm:text-xl font-bold text-white placeholder-gray-600 outline-none w-full sm:w-96 max-w-full"
                 />
             </div>
-            <div class="flex items-center gap-3">
+            <div class="flex items-center justify-between sm:justify-end gap-3 w-full sm:w-auto">
                 <button id="meta-btn" class="px-3 py-2 text-gray-400 hover:text-white transition-colors" title="Metadata">
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12h20"/><path d="M2 12l5 5"/><path d="M2 12l5-5"/></svg>
                 </button>
@@ -37,7 +37,7 @@ const slug = searchParams.get("slug");
         </header>
 
         <!-- Metadata Panel (Hidden by default) -->
-        <div id="meta-panel" class="hidden absolute top-16 right-0 w-80 bg-[#020617] border-l border-b border-white/10 p-4 z-20 shadow-2xl backdrop-blur-xl">
+        <div id="meta-panel" class="hidden fixed sm:absolute top-[5rem] sm:top-16 left-0 right-0 sm:left-auto sm:right-0 w-full sm:w-80 max-h-[calc(100vh-4rem)] overflow-y-auto bg-[#020617] border-b sm:border-l border-white/10 p-4 z-20 shadow-2xl backdrop-blur-xl">
             <h3 class="text-sm font-bold text-white mb-4">Post Metadata</h3>
             <div class="space-y-4">
                 <div>
@@ -54,7 +54,7 @@ const slug = searchParams.get("slug");
         <!-- Main Editor Area -->
         <main class="flex-1 flex flex-col md:flex-row overflow-hidden">
             <!-- Editor -->
-            <div class="flex-1 flex flex-col border-r border-white/10 bg-[#020617]/50 order-1 md:order-none min-h-[50vh] md:min-h-0">
+            <div class="flex-1 flex flex-col border-b md:border-b-0 md:border-r border-white/10 bg-[#020617]/50 order-1 md:order-none min-h-[40vh] md:min-h-0">
                 <div class="flex-none p-2 border-b border-white/5 flex gap-2 overflow-x-auto touch-pan-x">
                     <button class="p-3 min-w-[44px] min-h-[44px] flex items-center justify-center text-gray-400 hover:text-white hover:bg-white/5 rounded transition-colors" title="Bold" onclick="insertMarkdown('**', '**')">B</button>
                     <button class="p-3 min-w-[44px] min-h-[44px] flex items-center justify-center text-gray-400 hover:text-white hover:bg-white/5 rounded transition-colors" title="Italic" onclick="insertMarkdown('*', '*')">I</button>
@@ -69,24 +69,22 @@ const slug = searchParams.get("slug");
                 </div>
                 <textarea 
                     id="markdown-input" 
-                    class="flex-1 w-full h-full p-6 bg-transparent text-gray-300 font-mono text-sm resize-none outline-none leading-relaxed focus:bg-white/5 transition-colors"
+                    class="flex-1 w-full h-full p-4 sm:p-6 bg-transparent text-gray-300 font-mono text-sm resize-none outline-none leading-relaxed focus:bg-white/5 transition-colors"
                     placeholder="Write your thoughts..."
                 ></textarea>
             </div>
 
             <!-- Preview -->
-            <div class="flex-1 bg-[#0f172a]/30 overflow-y-auto p-8 prose prose-invert prose-blue max-w-none 
+            <div class="flex-1 bg-[#0f172a]/30 overflow-y-auto p-4 sm:p-8 prose prose-sm sm:prose-base lg:prose-lg prose-invert prose-blue max-w-none 
                 prose-headings:bg-gradient-to-r prose-headings:from-blue-400 prose-headings:to-purple-500 prose-headings:bg-clip-text prose-headings:text-transparent 
                 prose-p:text-gray-300/90 prose-strong:text-white prose-a:text-blue-300 hover:prose-a:text-blue-200 prose-a:no-underline hover:prose-a:underline 
                 prose-blockquote:border-l-blue-500/40 prose-blockquote:bg-white/5 prose-blockquote:rounded-r-xl prose-blockquote:px-4 prose-blockquote:py-2 prose-blockquote:text-gray-200 
-                prose-hr:border-white/10 prose-pre:bg-black/40 prose-pre:border prose-pre:border-white/10 prose-pre:rounded-xl 
+                prose-hr:border-white/10 prose-pre:bg-black/40 prose-pre:border prose-pre:border-white/10 prose-pre:rounded-xl prose-pre:overflow-x-auto 
                 prose-code:text-purple-200 prose-code:bg-white/5 prose-code:px-1 prose-code:py-0.5 prose-code:rounded 
                 prose-img:rounded-xl prose-img:border prose-img:border-white/10 prose-img:shadow-2xl 
-                order-2 md:order-none hidden md:block" id="preview-container">
+                order-2 md:order-none min-h-[40vh] md:min-h-0" id="preview-container">
                 <div id="preview-content"></div>
             </div>
-            
-            <!-- Mobile Preview Toggle (Optional: could add a tab switcher for mobile to show preview) -->
         </main>
     </div>
 

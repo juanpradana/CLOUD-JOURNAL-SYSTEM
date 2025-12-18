@@ -48,21 +48,21 @@ try {
 ---
 
 <Layout title="Admin Dashboard">
-	<div class="container mx-auto px-4 py-8">
+	<div class="container mx-auto px-4 py-6 sm:py-8">
 		<!-- Header -->
-		<header class="flex justify-between items-center mb-8">
+		<header class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-6 sm:mb-8">
 			<div>
 				<h1 class="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-500">
 					Command Center
 				</h1>
 				<p class="text-gray-400">Welcome back, <span class="text-blue-400">{user.username}</span></p>
 			</div>
-			<div class="flex gap-4">
-				<a href="/" target="_blank" class="px-4 py-2 bg-white/5 hover:bg-white/10 rounded-lg text-sm transition-colors border border-white/10">
+			<div class="flex flex-wrap gap-3 sm:gap-4">
+				<a href="/" target="_blank" class="px-3 sm:px-4 py-2 bg-white/5 hover:bg-white/10 rounded-lg text-sm transition-colors border border-white/10">
 					View Site
 				</a>
                 <form action="/api/logout" method="POST">
-                    <button type="submit" class="px-4 py-2 bg-red-500/10 hover:bg-red-500/20 text-red-400 rounded-lg text-sm transition-colors border border-red-500/20">
+					<button type="submit" class="px-3 sm:px-4 py-2 bg-red-500/10 hover:bg-red-500/20 text-red-400 rounded-lg text-sm transition-colors border border-red-500/20">
                         Logout
                     </button>
                 </form>
@@ -70,15 +70,15 @@ try {
 		</header>
 
 		<!-- Actions -->
-		<div class="mb-8">
-			<a href="/admin/editor" class="inline-flex items-center px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 text-white font-semibold rounded-lg shadow-lg shadow-blue-500/20 transition-all hover:scale-[1.02] active:scale-[0.98]">
+		<div class="mb-6 sm:mb-8">
+			<a href="/admin/editor" class="inline-flex items-center px-5 sm:px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 text-white font-semibold rounded-lg shadow-lg shadow-blue-500/20 transition-all hover:scale-[1.02] active:scale-[0.98]">
 				<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-2"><path d="M12 5v14M5 12h14"/></svg>
 				New Entry
 			</a>
 		</div>
 
 		<!-- Articles Grid -->
-		<div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+		<div class="grid gap-4 sm:gap-5 md:grid-cols-2 lg:grid-cols-3">
             {articles.length === 0 && (
                 <div class="col-span-full text-center py-12 text-gray-500">
                     No entries found. Start writing!

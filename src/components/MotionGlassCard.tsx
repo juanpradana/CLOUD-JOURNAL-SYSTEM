@@ -15,7 +15,7 @@ export const MotionGlassCard: React.FC<MotionGlassCardProps> = ({ children, clas
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5, delay: delay }}
       className={cn(
-        "backdrop-blur-xl bg-white/5 border border-white/10 shadow-2xl rounded-2xl p-6",
+        "backdrop-blur-xl bg-white/5 border border-white/10 shadow-2xl rounded-2xl p-4 sm:p-6",
         className
       )}
     >
