@@ -38,6 +38,22 @@ const { title, description = "Glass Cloud Journal System" } = Astro.props;
 			white 60%
 		);
 	}
+
+	.prose :where(code):not(:where(pre code)) {
+		font-weight: 500;
+	}
+
+	.prose :where(pre) {
+		box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.08);
+	}
+
+	.prose :where(blockquote) {
+		border-left-color: rgba(59, 130, 246, 0.4);
+	}
+
+	.prose :where(a) {
+		text-underline-offset: 4px;
+	}
     /* Custom Scrollbar */
     ::-webkit-scrollbar {
         width: 8px;

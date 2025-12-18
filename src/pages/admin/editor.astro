@@ -75,7 +75,14 @@ const slug = searchParams.get("slug");
             </div>
 
             <!-- Preview -->
-            <div class="flex-1 bg-[#0f172a]/30 overflow-y-auto p-8 prose prose-invert prose-blue max-w-none prose-pre:bg-black/50 prose-img:rounded-xl order-2 md:order-none hidden md:block" id="preview-container">
+            <div class="flex-1 bg-[#0f172a]/30 overflow-y-auto p-8 prose prose-invert prose-blue max-w-none 
+                prose-headings:bg-gradient-to-r prose-headings:from-blue-400 prose-headings:to-purple-500 prose-headings:bg-clip-text prose-headings:text-transparent 
+                prose-p:text-gray-300/90 prose-strong:text-white prose-a:text-blue-300 hover:prose-a:text-blue-200 prose-a:no-underline hover:prose-a:underline 
+                prose-blockquote:border-l-blue-500/40 prose-blockquote:bg-white/5 prose-blockquote:rounded-r-xl prose-blockquote:px-4 prose-blockquote:py-2 prose-blockquote:text-gray-200 
+                prose-hr:border-white/10 prose-pre:bg-black/40 prose-pre:border prose-pre:border-white/10 prose-pre:rounded-xl 
+                prose-code:text-purple-200 prose-code:bg-white/5 prose-code:px-1 prose-code:py-0.5 prose-code:rounded 
+                prose-img:rounded-xl prose-img:border prose-img:border-white/10 prose-img:shadow-2xl 
+                order-2 md:order-none hidden md:block" id="preview-container">
                 <div id="preview-content"></div>
             </div>
             
@@ -87,6 +94,11 @@ const slug = searchParams.get("slug");
     <input type="hidden" id="post-slug" value={slug || ''} />
 </Layout>
 
+<script define:vars={{ CURRENT_USER_ID: Astro.locals.user?.id, CURRENT_USER_NAME: Astro.locals.user?.username }}>
+	window.CURRENT_USER_ID = CURRENT_USER_ID;
+	window.CURRENT_USER_NAME = CURRENT_USER_NAME;
+</script>
+
 <script>
     import { marked } from "marked";
     import DOMPurify from "dompurify";
@@ -97,6 +109,15 @@ const slug = searchParams.get("slug");
     const saveBtn = document.getElementById("save-btn") as HTMLButtonElement;
     const saveStatus = document.getElementById("save-status") as HTMLSpanElement;
     const imageUpload = document.getElementById("image-upload") as HTMLInputElement;
+
+    const metaBtn = document.getElementById("meta-btn") as HTMLButtonElement | null;
+    const metaPanel = document.getElementById("meta-panel") as HTMLDivElement | null;
+    const descInput = document.getElementById("post-desc") as HTMLTextAreaElement | null;
+    const coverInput = document.getElementById("post-cover") as HTMLInputElement | null;
+
+    metaBtn?.addEventListener("click", () => {
+        metaPanel?.classList.toggle("hidden");
+    });
     
     // Initial Render
     function render() {
@@ -173,8 +194,8 @@ const slug = searchParams.get("slug");
         
         const content = textarea.value;
         const title = titleInput.value;
-        const description = descInput.value;
-        const coverImage = coverInput.value;
+        const description = descInput?.value ?? "";
+        const coverImage = coverInput?.value ?? "";
         const slug = title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
         
         // Construct Frontmatter

@@ -102,9 +102,12 @@ try {
         <div class="max-w-4xl mx-auto px-4 py-12 grid grid-cols-1 lg:grid-cols-[1fr_300px] gap-12">
             <!-- Content -->
             <main class="prose prose-invert prose-lg prose-blue max-w-none 
-                prose-headings:text-white prose-p:text-gray-300 prose-a:text-blue-400 
-                prose-img:rounded-xl prose-img:border prose-img:border-white/10 prose-img:shadow-2xl
-                prose-pre:bg-[#020617] prose-pre:border prose-pre:border-white/10">
+                prose-headings:bg-gradient-to-r prose-headings:from-blue-400 prose-headings:to-purple-500 prose-headings:bg-clip-text prose-headings:text-transparent
+                prose-p:text-gray-300/90 prose-strong:text-white prose-a:text-blue-300 hover:prose-a:text-blue-200 prose-a:no-underline hover:prose-a:underline
+                prose-blockquote:border-l-blue-500/40 prose-blockquote:bg-white/5 prose-blockquote:rounded-r-xl prose-blockquote:px-4 prose-blockquote:py-2 prose-blockquote:text-gray-200
+                prose-hr:border-white/10 prose-img:rounded-xl prose-img:border prose-img:border-white/10 prose-img:shadow-2xl
+                prose-pre:bg-[#020617] prose-pre:border prose-pre:border-white/10 prose-pre:rounded-xl
+                prose-code:text-purple-200 prose-code:bg-white/5 prose-code:px-1 prose-code:py-0.5 prose-code:rounded">
                 <div set:html={htmlContent} />
             </main>
 
