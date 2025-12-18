@@ -5,11 +5,11 @@ import AdSlot from "../../components/AdSlot.astro";
 import fs from "node:fs/promises";
 import path from "node:path";
 import { marked } from "marked";
-import DOMPurify from "dompurify";
-import { JSDOM } from "jsdom";
+import createDOMPurify from "dompurify";
+import { parseHTML } from "linkedom";
 
-const window = new JSDOM('').window;
-const purify = DOMPurify(window);
+const { window } = parseHTML("<html><body></body></html>");
+const purify = createDOMPurify(window);
 
 const { slug } = Astro.params;
 
@@ -19,7 +19,7 @@ if (!slug) {
 
 const contentDir = path.join(process.cwd(), "src/content/jurnal");
 let content = "";
-let frontmatter = { title: "", date: "", author_username: "" };
+let frontmatter = { title: "", date: "", author_username: "", cover_image: "" };
 let htmlContent = "";
 
 try {
@@ -31,41 +31,43 @@ try {
     
     // Parse Frontmatter manually
     const fmEnd = content.indexOf('---', 3);
+    let bodyRaw = content;
     if (content.startsWith('---') && fmEnd !== -1) {
         const fmRaw = content.substring(3, fmEnd);
-        const bodyRaw = content.substring(fmEnd + 3);
+        bodyRaw = content.substring(fmEnd + 3);
         
         const titleMatch = fmRaw.match(/title:\s*(.*)/);
         const dateMatch = fmRaw.match(/date:\s*(.*)/);
         const authorMatch = fmRaw.match(/author_username:\s*(.*)/);
+        const coverMatch = fmRaw.match(/cover_image:\s*(.*)/);
 
         frontmatter = {
             title: titleMatch ? titleMatch[1].trim() : "Untitled",
             date: dateMatch ? dateMatch[1].trim() : new Date().toISOString(),
             author_username: authorMatch ? authorMatch[1].trim() : "Unknown",
+            cover_image: coverMatch ? coverMatch[1].trim().replace(/^["']|["']$/g, "") : "",
         };
+    }
 
-        // Render Markdown
-        htmlContent = purify.sanitize(marked.parse(bodyRaw) as string);
-        
-        // Add loading="lazy" to all images
-        htmlContent = htmlContent.replace(/<img /g, '<img loading="lazy" ');
+    // Render Markdown
+    htmlContent = purify.sanitize(marked.parse(bodyRaw) as string);
+    
+    // Add loading="lazy" to all images
+    htmlContent = htmlContent.replace(/<img /g, '<img loading="lazy" ');
 
-        // Inject AdSlot into HTML (After 2nd paragraph)
-        const firstP = htmlContent.indexOf('</p>');
-        if (firstP !== -1) {
-            const secondP = htmlContent.indexOf('</p>', firstP + 4);
-            if (secondP !== -1) {
-                 const adHtml = `
-                    <div class="w-full my-8 p-4 bg-white/5 border border-white/10 rounded-xl flex flex-col items-center justify-center text-center">
-                        <span class="text-xs font-mono text-gray-500 mb-2">SPONSORED CONTENT</span>
-                        <div class="text-gray-400 text-sm">Ad Space Available</div>
-                    </div>
-                 `;
-                 htmlContent = htmlContent.slice(0, secondP + 4) + adHtml + htmlContent.slice(secondP + 4);
-            }
+    // Inject AdSlot into HTML (After 2nd paragraph)
+    const firstP = htmlContent.indexOf('</p>');
+    if (firstP !== -1) {
+        const secondP = htmlContent.indexOf('</p>', firstP + 4);
+        if (secondP !== -1) {
+            const adHtml = `
+                <div class="w-full my-8 p-4 bg-white/5 border border-white/10 rounded-xl flex flex-col items-center justify-center text-center">
+                    <span class="text-xs font-mono text-gray-500 mb-2">SPONSORED CONTENT</span>
+                    <div class="text-gray-400 text-sm">Ad Space Available</div>
+                </div>
+            `;
+            htmlContent = htmlContent.slice(0, secondP + 4) + adHtml + htmlContent.slice(secondP + 4);
         }
-
     }
 } catch (e) {
     console.error(e);
