@@ -79,10 +79,14 @@ try {
     <article class="min-h-screen pb-20">
         <!-- Header -->
         <header class="relative py-16 sm:py-24 md:py-32 px-4 overflow-hidden border-b border-white/10 bg-black/40">
-            <a href="/" class="absolute top-4 left-4 z-20 inline-flex items-center gap-2 px-3 py-2 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 backdrop-blur-md text-gray-200 hover:text-white transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500">
-                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 9 9-7 9 7"/><path d="M9 22V12h6v10"/><path d="M21 22H3"/></svg>
-                <span class="text-sm font-medium">Home</span>
-            </a>
+            <div class="absolute inset-x-0 top-0 z-20">
+                <div class="max-w-4xl lg:max-w-6xl xl:max-w-7xl mx-auto px-4 pt-4 flex items-center">
+                    <a href="/" aria-label="Home" class="inline-flex items-center gap-2 px-3 py-2 rounded-full bg-black/30 hover:bg-black/40 border border-white/15 backdrop-blur-md text-gray-200 hover:text-white shadow-lg shadow-black/20 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 9 9-7 9 7"/><path d="M9 22V12h6v10"/><path d="M21 22H3"/></svg>
+                        <span class="hidden sm:inline text-sm font-medium">Home</span>
+                    </a>
+                </div>
+            </div>
             <!-- Dynamic Background -->
             {frontmatter.cover_image ? (
                 <div class="absolute inset-0 z-[-1]">
