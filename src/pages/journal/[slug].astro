@@ -89,7 +89,7 @@ try {
                 <div class="absolute inset-0 bg-blue-900/10 blur-3xl z-[-1]"></div>
             )}
             
-            <div class="max-w-4xl mx-auto text-center space-y-3 sm:space-y-4 relative z-10">
+            <div class="max-w-4xl lg:max-w-6xl mx-auto text-center space-y-3 sm:space-y-4 relative z-10">
                 <div class="flex items-center justify-center gap-4 text-sm font-mono text-blue-400">
                     <span>{new Date(frontmatter.date).toLocaleDateString()}</span>
                     <span>•</span>
@@ -101,7 +101,7 @@ try {
             </div>
         </header>
 
-        <div class="max-w-4xl mx-auto px-4 py-8 sm:py-12 grid grid-cols-1 lg:grid-cols-[1fr_300px] gap-8 sm:gap-12 min-w-0">
+        <div class="max-w-4xl lg:max-w-6xl xl:max-w-7xl mx-auto px-4 py-8 sm:py-12 grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_360px] gap-8 sm:gap-12 lg:gap-14 min-w-0">
             <!-- Content -->
             <main class="prose prose-invert prose-sm sm:prose-base lg:prose-lg prose-blue max-w-none break-words 
                 prose-headings:bg-gradient-to-r prose-headings:from-blue-400 prose-headings:to-purple-500 prose-headings:bg-clip-text prose-headings:text-transparent
@@ -114,7 +114,7 @@ try {
             </main>
 
             <!-- Sidebar -->
-            <aside class="space-y-8">
+            <aside class="space-y-8 lg:pt-1">
                 <GlassCard>
                     <h3 class="font-bold text-white mb-4">About Author</h3>
                     <div class="flex items-center gap-4">
