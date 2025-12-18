@@ -47,6 +47,17 @@ const { title, description = "Glass Cloud Journal System" } = Astro.props;
 		box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.08);
 	}
 
+	.prose :where(table) {
+		display: block;
+		width: 100%;
+		overflow-x: auto;
+		-webkit-overflow-scrolling: touch;
+	}
+
+	.prose :where(table th, table td) {
+		white-space: nowrap;
+	}
+
 	.prose :where(blockquote) {
 		border-left-color: rgba(59, 130, 246, 0.4);
 	}
