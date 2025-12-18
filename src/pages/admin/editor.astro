@@ -1,0 +1,209 @@
+---
+import Layout from "../../layouts/Layout.astro";
+
+if (!Astro.locals.user) {
+	return Astro.redirect("/login");
+}
+
+const { searchParams } = Astro.url;
+const slug = searchParams.get("slug");
+// TODO: Load existing content if slug is present
+---
+
+<Layout title="Editor - Glass Cloud Journal">
+    <div class="flex flex-col h-screen overflow-hidden">
+        <!-- Toolbar -->
+        <header class="flex-none h-16 border-b border-white/10 bg-black/20 backdrop-blur-md flex items-center justify-between px-6 z-10">
+            <div class="flex items-center gap-4">
+                <a href="/admin" class="text-gray-400 hover:text-white transition-colors">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+                </a>
+                <input 
+                    type="text" 
+                    id="post-title" 
+                    placeholder="Entry Title..." 
+                    class="bg-transparent text-xl font-bold text-white placeholder-gray-600 outline-none w-96"
+                />
+            </div>
+            <div class="flex items-center gap-3">
+                <button id="meta-btn" class="px-3 py-2 text-gray-400 hover:text-white transition-colors" title="Metadata">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12h20"/><path d="M2 12l5 5"/><path d="M2 12l5-5"/></svg>
+                </button>
+                <span id="save-status" class="text-xs text-gray-500 font-mono">Unsaved</span>
+                <button id="save-btn" class="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-lg text-sm font-medium transition-colors">
+                    Publish
+                </button>
+            </div>
+        </header>
+
+        <!-- Metadata Panel (Hidden by default) -->
+        <div id="meta-panel" class="hidden absolute top-16 right-0 w-80 bg-[#020617] border-l border-b border-white/10 p-4 z-20 shadow-2xl backdrop-blur-xl">
+            <h3 class="text-sm font-bold text-white mb-4">Post Metadata</h3>
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-xs text-gray-500 mb-1">Description</label>
+                    <textarea id="post-desc" class="w-full bg-white/5 border border-white/10 rounded p-2 text-sm text-gray-300 outline-none focus:border-blue-500" rows="3"></textarea>
+                </div>
+                <div>
+                    <label class="block text-xs text-gray-500 mb-1">Cover Image URL</label>
+                    <input type="text" id="post-cover" class="w-full bg-white/5 border border-white/10 rounded p-2 text-sm text-gray-300 outline-none focus:border-blue-500" />
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Editor Area -->
+        <main class="flex-1 flex flex-col md:flex-row overflow-hidden">
+            <!-- Editor -->
+            <div class="flex-1 flex flex-col border-r border-white/10 bg-[#020617]/50 order-1 md:order-none min-h-[50vh] md:min-h-0">
+                <div class="flex-none p-2 border-b border-white/5 flex gap-2 overflow-x-auto touch-pan-x">
+                    <button class="p-3 min-w-[44px] min-h-[44px] flex items-center justify-center text-gray-400 hover:text-white hover:bg-white/5 rounded transition-colors" title="Bold" onclick="insertMarkdown('**', '**')">B</button>
+                    <button class="p-3 min-w-[44px] min-h-[44px] flex items-center justify-center text-gray-400 hover:text-white hover:bg-white/5 rounded transition-colors" title="Italic" onclick="insertMarkdown('*', '*')">I</button>
+                    <button class="p-3 min-w-[44px] min-h-[44px] flex items-center justify-center text-gray-400 hover:text-white hover:bg-white/5 rounded transition-colors" title="Heading" onclick="insertMarkdown('## ', '')">H2</button>
+                    <button class="p-3 min-w-[44px] min-h-[44px] flex items-center justify-center text-gray-400 hover:text-white hover:bg-white/5 rounded transition-colors" title="Link" onclick="insertMarkdown('[', '](url)')">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+                    </button>
+                    <label class="p-3 min-w-[44px] min-h-[44px] flex items-center justify-center text-gray-400 hover:text-white hover:bg-white/5 rounded cursor-pointer transition-colors" title="Upload Image">
+                        <input type="file" id="image-upload" class="hidden" accept="image/png, image/jpeg, image/webp" />
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="3" rx="2" ry="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/></svg>
+                    </label>
+                </div>
+                <textarea 
+                    id="markdown-input" 
+                    class="flex-1 w-full h-full p-6 bg-transparent text-gray-300 font-mono text-sm resize-none outline-none leading-relaxed focus:bg-white/5 transition-colors"
+                    placeholder="Write your thoughts..."
+                ></textarea>
+            </div>
+
+            <!-- Preview -->
+            <div class="flex-1 bg-[#0f172a]/30 overflow-y-auto p-8 prose prose-invert prose-blue max-w-none prose-pre:bg-black/50 prose-img:rounded-xl order-2 md:order-none hidden md:block" id="preview-container">
+                <div id="preview-content"></div>
+            </div>
+            
+            <!-- Mobile Preview Toggle (Optional: could add a tab switcher for mobile to show preview) -->
+        </main>
+    </div>
+
+    <!-- Hidden Metadata Fields -->
+    <input type="hidden" id="post-slug" value={slug || ''} />
+</Layout>
+
+<script>
+    import { marked } from "marked";
+    import DOMPurify from "dompurify";
+
+    const textarea = document.getElementById("markdown-input") as HTMLTextAreaElement;
+    const preview = document.getElementById("preview-content") as HTMLDivElement;
+    const titleInput = document.getElementById("post-title") as HTMLInputElement;
+    const saveBtn = document.getElementById("save-btn") as HTMLButtonElement;
+    const saveStatus = document.getElementById("save-status") as HTMLSpanElement;
+    const imageUpload = document.getElementById("image-upload") as HTMLInputElement;
+    
+    // Initial Render
+    function render() {
+        const raw = textarea.value;
+        const html = DOMPurify.sanitize(marked.parse(raw) as string);
+        preview.innerHTML = html;
+    }
+
+    textarea.addEventListener("input", render);
+
+    // Image Upload
+    imageUpload.addEventListener("change", async (e) => {
+        const file = (e.target as HTMLInputElement).files?.[0];
+        if (!file) return;
+
+        const formData = new FormData();
+        formData.append("file", file);
+
+        saveStatus.innerText = "Uploading...";
+        
+        try {
+            const res = await fetch("/api/upload", {
+                method: "POST",
+                body: formData
+            });
+            const data = await res.json();
+            
+            if (res.ok) {
+                insertTextAtCursor(`![${file.name}](${data.url})`);
+                saveStatus.innerText = "Image Uploaded";
+                render();
+            } else {
+                alert(data.error);
+                saveStatus.innerText = "Upload Failed";
+            }
+        } catch (err) {
+            console.error(err);
+            saveStatus.innerText = "Error";
+        }
+    });
+
+    // Helper: Insert text at cursor
+    function insertTextAtCursor(text: string) {
+        const start = textarea.selectionStart;
+        const end = textarea.selectionEnd;
+        const value = textarea.value;
+        textarea.value = value.substring(0, start) + text + value.substring(end);
+        textarea.selectionStart = textarea.selectionEnd = start + text.length;
+        textarea.focus();
+    }
+    
+    // Expose for toolbar buttons
+    (window as any).insertMarkdown = (prefix: string, suffix: string) => {
+        const start = textarea.selectionStart;
+        const end = textarea.selectionEnd;
+        const value = textarea.value;
+        const selected = value.substring(start, end);
+        const replacement = prefix + selected + suffix;
+        textarea.value = value.substring(0, start) + replacement + value.substring(end);
+        textarea.selectionStart = start + prefix.length;
+        textarea.selectionEnd = start + prefix.length + selected.length;
+        textarea.focus();
+        render();
+    };
+
+    // Save Logic
+    saveBtn.addEventListener("click", async () => {
+        if (!titleInput.value) {
+            alert("Title is required");
+            return;
+        }
+
+        saveStatus.innerText = "Saving...";
+        
+        const content = textarea.value;
+        const title = titleInput.value;
+        const description = descInput.value;
+        const coverImage = coverInput.value;
+        const slug = title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+        
+        // Construct Frontmatter
+        const finalContent = `---
+title: ${title}
+slug: ${slug}
+date: ${new Date().toISOString()}
+author_id: "${(window as any).CURRENT_USER_ID}"
+author_username: "${(window as any).CURRENT_USER_NAME}"
+description: "${description.replace(/"/g, '\\"')}"
+cover_image: "${coverImage}"
+---
+
+${content}`;
+
+        // Send to API (Need a save endpoint)
+        // For now, we'll implement a simple API route for saving content
+        
+        const res = await fetch("/api/save-post", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ filename: `${slug}.md`, content: finalContent })
+        });
+        
+        if (res.ok) {
+            saveStatus.innerText = "Saved!";
+            setTimeout(() => saveStatus.innerText = "Unsaved", 3000);
+        } else {
+            saveStatus.innerText = "Save Failed";
+        }
+    });
+</script>

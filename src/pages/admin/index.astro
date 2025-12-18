@@ -1,0 +1,103 @@
+---
+import Layout from "../../layouts/Layout.astro";
+import GlassCard from "../../components/GlassCard.astro";
+import { db } from "../../db"; // Assuming we will list articles here later
+import fs from "node:fs/promises";
+import path from "node:path";
+
+if (!Astro.locals.user) {
+	return Astro.redirect("/login");
+}
+
+const user = Astro.locals.user;
+
+// Fetch articles (Markdown files)
+const contentDir = path.join(process.cwd(), "src/content/jurnal");
+let articles = [];
+
+try {
+    // Ensure dir exists
+    try {
+        await fs.access(contentDir);
+    } catch {
+        await fs.mkdir(contentDir, { recursive: true });
+    }
+
+    const files = await fs.readdir(contentDir);
+    articles = await Promise.all(
+        files
+            .filter(f => f.endsWith('.md'))
+            .map(async (f) => {
+                const content = await fs.readFile(path.join(contentDir, f), 'utf-8');
+                // Simple Frontmatter parsing regex for list view
+                const titleMatch = content.match(/title:\s*(.*)/);
+                const dateMatch = content.match(/date:\s*(.*)/);
+                const slugMatch = content.match(/slug:\s*(.*)/);
+                
+                return {
+                    filename: f,
+                    title: titleMatch ? titleMatch[1].trim() : f,
+                    date: dateMatch ? dateMatch[1].trim() : 'Unknown',
+                    slug: slugMatch ? slugMatch[1].trim() : f.replace('.md', ''),
+                };
+            })
+    );
+} catch (e) {
+    console.error("Error reading articles", e);
+}
+---
+
+<Layout title="Admin Dashboard">
+	<div class="container mx-auto px-4 py-8">
+		<!-- Header -->
+		<header class="flex justify-between items-center mb-8">
+			<div>
+				<h1 class="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-500">
+					Command Center
+				</h1>
+				<p class="text-gray-400">Welcome back, <span class="text-blue-400">{user.username}</span></p>
+			</div>
+			<div class="flex gap-4">
+				<a href="/" target="_blank" class="px-4 py-2 bg-white/5 hover:bg-white/10 rounded-lg text-sm transition-colors border border-white/10">
+					View Site
+				</a>
+                <form action="/api/logout" method="POST">
+                    <button type="submit" class="px-4 py-2 bg-red-500/10 hover:bg-red-500/20 text-red-400 rounded-lg text-sm transition-colors border border-red-500/20">
+                        Logout
+                    </button>
+                </form>
+			</div>
+		</header>
+
+		<!-- Actions -->
+		<div class="mb-8">
+			<a href="/admin/editor" class="inline-flex items-center px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 text-white font-semibold rounded-lg shadow-lg shadow-blue-500/20 transition-all hover:scale-[1.02] active:scale-[0.98]">
+				<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-2"><path d="M12 5v14M5 12h14"/></svg>
+				New Entry
+			</a>
+		</div>
+
+		<!-- Articles Grid -->
+		<div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+            {articles.length === 0 && (
+                <div class="col-span-full text-center py-12 text-gray-500">
+                    No entries found. Start writing!
+                </div>
+            )}
+			{articles.map((article) => (
+				<GlassCard className="hover:bg-white/10 transition-colors group relative overflow-hidden">
+					<div class="absolute top-0 right-0 p-4 opacity-0 group-hover:opacity-100 transition-opacity">
+						<a href={`/admin/editor?slug=${article.slug}`} class="p-2 bg-blue-500/20 text-blue-400 rounded-lg hover:bg-blue-500/30">
+							Edit
+						</a>
+					</div>
+					<h3 class="text-xl font-bold text-white mb-2 truncate">{article.title}</h3>
+					<p class="text-sm text-gray-400 mb-4">{new Date(article.date).toLocaleDateString()}</p>
+                    <div class="flex items-center justify-between mt-auto pt-4 border-t border-white/5">
+                        <span class="text-xs font-mono text-gray-500">/{article.slug}</span>
+                    </div>
+				</GlassCard>
+			))}
+		</div>
+	</div>
+</Layout>

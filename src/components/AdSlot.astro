@@ -1,0 +1,20 @@
+---
+import { cn } from "../lib/utils";
+
+interface Props {
+  className?: string;
+  slotId?: string;
+}
+
+const { className, slotId = "demo-slot" } = Astro.props;
+---
+
+<div class={cn("w-full p-4 flex items-center justify-center bg-white/5 border border-white/10 rounded-xl my-8 min-h-[100px]", className)}>
+  <div class="text-center">
+    <span class="text-xs font-mono text-gray-500 block mb-1">ADVERTISEMENT</span>
+    <div class="w-full h-full text-gray-400 text-sm">
+      <!-- In production, insert Ad script here using slotId -->
+      Space Reserved for Ads
+    </div>
+  </div>
+</div>
